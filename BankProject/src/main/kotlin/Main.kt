@@ -1,4 +1,7 @@
-var accountBalance :Int = (0..1000).random()
+var accountBalance :Int = 0
+var accountType :String = ""
+var money :Int = 0
+var isSystemOn = true
 
 fun main(args: Array<String>) {
     printWelcomeMessage()
@@ -24,18 +27,31 @@ fun main(args: Array<String>) {
     println("The selected option is $selectedOption")
 
     //comment the line below to go with random account selection
-    val accountType :String = assignAccountType(selectedOption)
+    accountType = assignAccountType(selectedOption)
 
+    accountBalance = (0..1000).random()
     println("The current balance is $accountBalance dollars")
 
-    val money :Int = (0..1000).random()
-    println("The amount you transferred is $money dollars")
+    while(isSystemOn) {
+        money = (0..1000).random()
 
-    var output = 0;
+        printActionMessage()
 
-    output = deposit(money)
+        val selectedAction = readln().toInt()
 
-    println("Output: $output \nCurrent balance: $accountBalance")
+        when (selectedAction) {
+            1 -> println("The current balance is $accountBalance")
+            2 -> transfer("withdraw")
+            3 -> transfer("deposit")
+            4 -> {
+                isSystemOn = false
+                println("The system is closed")
+            }
+            else -> continue
+        }
+    }
+
+
 }
 
 fun printWelcomeMessage() {
@@ -47,8 +63,17 @@ fun printWelcomeMessage() {
             "\nChoose an option (1, 2 or 3)")
 }
 
+fun printActionMessage() {
+    println("What would you like to do?" +
+            "\n1. Check account balance" +
+            "\n2. Withdraw money" +
+            "\n3. Deposit money" +
+            "\n4. Close the system" +
+            "\nWhich option do you choose? (1, 2, 3 or 4)")
+}
+
 fun assignAccountType(selectedOption :Int) :String {
-    var result :String = ""
+    var result = ""
     when (selectedOption){
         1 -> result = "debit"
         2 -> result = "credit"
@@ -78,7 +103,7 @@ fun debitWithdraw(amount :Int) :Int {
 //checking and debit
 fun deposit(amount :Int) :Int {
     accountBalance += amount
-    println("You successfully withdrew $amount dollars. The current balance is $accountBalance")
+    println("You successfully deposited $amount dollars. The current balance is $accountBalance")
     return amount
 }
 
@@ -89,7 +114,7 @@ fun creditDeposit(amount :Int) :Int {
         return accountBalance
     } else if(accountBalance + amount > 0) {
         println("Deposit failed. You tried to pay off an amount greater than the credit balance" +
-                "The ckecking balance is $accountBalance dollars")
+                "The checking balance is $accountBalance dollars")
         return 0
     } else if(amount == accountBalance) {
         accountBalance = 0
@@ -99,4 +124,30 @@ fun creditDeposit(amount :Int) :Int {
         deposit(amount)
     }
     return amount
+}
+
+fun transfer(mode :String) {
+    val transferAmount: Int
+    when (mode) {
+        "withdraw" -> {
+            if (accountType == "debit") {
+                transferAmount = debitWithdraw(money)
+                println("The amount you withdrew is $transferAmount dollars")
+            } else {
+                transferAmount = withdraw(money)
+                println("The amount you withdrew is $transferAmount dollars")
+            }
+        }
+
+        "deposit"  -> {
+            if(accountType == "credit") {
+                transferAmount = creditDeposit(money)
+                println("The amount you deposited is $transferAmount dollars")
+            } else {
+                transferAmount = deposit(money)
+                println("The amount you deposited is $transferAmount dollars")
+            }
+        }
+        else -> return
+    }
 }
